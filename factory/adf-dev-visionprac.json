@@ -1,0 +1,9 @@
+{
+	"name": "adf-dev-visionprac",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "518da45b-7a99-4560-9836-6d16aaa45227",
+		"tenantId": "3d03ecff-5885-435e-8277-c193de3761c5"
+	}
+}

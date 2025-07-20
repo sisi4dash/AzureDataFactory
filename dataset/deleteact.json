@@ -1,0 +1,19 @@
+{
+	"name": "deleteact",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "industry_sic.csv",
+				"fileSystem": "tgtadf"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

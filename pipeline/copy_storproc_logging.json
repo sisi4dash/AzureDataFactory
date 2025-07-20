@@ -1,0 +1,211 @@
+{
+	"name": "copy_storproc_logging",
+	"properties": {
+		"activities": [
+			{
+				"name": "copytransferfile",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [
+					{
+						"name": "Source",
+						"value": "HumanResources.Employee"
+					},
+					{
+						"name": "Destination",
+						"value": "tgtadf//"
+					}
+				],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "SqlServerTable2",
+						"type": "DatasetReference",
+						"parameters": {
+							"Schema": {
+								"value": "@pipeline().parameters.Schema",
+								"type": "Expression"
+							},
+							"table": {
+								"value": "@pipeline().parameters.Table_name",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DelimitedText1",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Stored procedure1",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "copytransferfile",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[audit_log]",
+					"storedProcedureParameters": {
+						"dataread": {
+							"value": {
+								"value": "@activity('copytransferfile').output.dataRead",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"errorid": {
+							"value": null,
+							"type": "String"
+						},
+						"errormsg": {
+							"value": null,
+							"type": "String"
+						},
+						"load_status": {
+							"value": {
+								"value": "@activity('copytransferfile').output.executionDetails[0].status",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"table_name": {
+							"value": {
+								"value": "@concat(pipeline().parameters.Schema,'|',pipeline().parameters.Table_name)",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "SqlServer1",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Stored procedure2",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "copytransferfile",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[audit_log]",
+					"storedProcedureParameters": {
+						"dataread": {
+							"value": {
+								"value": "@activity('copytransferfile').output.dataRead",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"errorid": {
+							"value": {
+								"value": "@activity('copytransferfile').output.errors[0].Code",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"errormsg": {
+							"value": {
+								"value": "@activity('copytransferfile').output.errors[0].Message",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"load_status": {
+							"value": {
+								"value": "@activity('copytransferfile').output.executionDetails[0].status",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"table_name": {
+							"value": {
+								"value": "@pipeline().parameters.Table_name",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "SqlServer1",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"parameters": {
+			"Schema": {
+				"type": "string"
+			},
+			"Table_name": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2025-07-17T16:51:44Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

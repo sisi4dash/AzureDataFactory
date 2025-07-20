@@ -1,0 +1,40 @@
+{
+	"name": "DelimitedText2",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "toprow_@{formatDateTime(addMinutes(addHours(utcNow(),5),30 ),'yyyyMMddHHmmss')}",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@formatDateTime(addMinutes(addHours(utcNow(),5),30 ),'yyyy-MM-dd/HH-mm-ss')",
+					"type": "Expression"
+				},
+				"fileSystem": "fileunderfile"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "SIC_Code",
+				"type": "String"
+			},
+			{
+				"name": "Description",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
